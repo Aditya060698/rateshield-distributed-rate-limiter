@@ -11,7 +11,20 @@ function buildUrl(path: string) {
 }
 
 async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
-  const payload = (await response.json()) as ApiResponse<T>;
+  const rawBody = await response.text();
+
+  if (!rawBody) {
+    throw new Error(`Request failed with status ${response.status}: empty response body`);
+  }
+
+  let payload: ApiResponse<T>;
+
+  try {
+    payload = JSON.parse(rawBody) as ApiResponse<T>;
+  } catch {
+    const contentType = response.headers.get('content-type') ?? 'unknown content-type';
+    throw new Error(`Request failed with status ${response.status}: expected JSON but received ${contentType}`);
+  }
 
   if (!response.ok || !payload.success) {
     const details = payload.error?.details?.join(', ');

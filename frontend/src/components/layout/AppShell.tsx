@@ -17,7 +17,7 @@ export function AppShell() {
               Distributed Rate Limiting Lab
             </p>
             <h1 className="text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-              RateShield Frontend
+              RateShield
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
               Explore fixed window, sliding window, and token bucket behavior through a focused simulation UI connected to your Spring Boot backend.
