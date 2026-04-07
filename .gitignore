@@ -1,0 +1,16 @@
+# Local tooling
+.m2/
+.idea/
+
+# Backend build output
+/target/
+/backend/target/
+
+# Frontend dependencies and build output
+/frontend/node_modules/
+/frontend/dist/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
