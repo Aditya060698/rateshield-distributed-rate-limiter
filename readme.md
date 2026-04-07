@@ -18,6 +18,7 @@ rateshield-distributed-rate-limiter/
 ¦   +-- src/
 ¦   +-- vite.config.ts
 +-- docker-compose.yml
++-- render.yaml
 +-- readme.md
 ```
 
@@ -28,6 +29,7 @@ rateshield-distributed-rate-limiter/
 - Frontend: React, Vite, TypeScript, Tailwind CSS
 - Charts: Recharts
 - Containerization: Docker, Docker Compose
+- Cloud deployment: Render Blueprint (`render.yaml`)
 
 ## What This Project Demonstrates
 
@@ -40,6 +42,7 @@ rateshield-distributed-rate-limiter/
 - Clean backend layering with strategy-based algorithm selection
 - Frontend simulation, dashboard metrics, and side-by-side algorithm comparison
 - Dockerized local environment for backend + Redis
+- Render deployment for backend, frontend, and managed Redis
 
 ## High-Level Architecture
 
@@ -342,7 +345,9 @@ Environment variables supported:
 - `REDIS_HOST`
 - `REDIS_PORT`
 - `REDIS_TIMEOUT`
+- `PORT`
 - `SERVER_PORT`
+- `CORS_ALLOWED_ORIGINS`
 
 ### Option 3: Run Frontend Locally
 
@@ -361,7 +366,50 @@ npm run dev
 Vite dev server runs on:
 - `http://localhost:5173`
 
-The frontend proxies `/simulate` and `/api` to the backend on `http://localhost:8080`.
+The frontend proxies `/simulate` and `/api` to the backend on `http://localhost:8080` when `VITE_API_BASE_URL` is not set.
+
+## Deploying on Render
+
+This repository now includes a Render Blueprint at [render.yaml](./render.yaml).
+
+### What the Blueprint Creates
+
+- `rateshield-backend`: Docker-based web service
+- `rateshield-frontend`: static site built from `frontend/`
+- `rateshield-redis`: Render Key Value instance
+
+### Files Added for Render
+
+- [render.yaml](./render.yaml)
+- [frontend/.env.example](./frontend/.env.example)
+- backend CORS support in `backend/src/main/java/com/rateshield/config/WebConfig.java`
+- backend `PORT` support in `backend/src/main/resources/application.yml`
+- frontend API base URL support in `frontend/src/services/api/client.ts`
+
+### Render Deployment Steps
+
+1. Push this repository to GitHub.
+2. In Render, choose `New +` -> `Blueprint`.
+3. Connect the GitHub repository.
+4. Render will detect [render.yaml](./render.yaml).
+5. Create the resources.
+6. When Render prompts for `VITE_API_BASE_URL`, set it to your backend public URL.
+
+Example:
+
+```text
+https://your-backend-service.onrender.com
+```
+
+7. After the backend is live, redeploy the frontend if needed so the final API URL is embedded into the Vite build.
+
+### Important Render Notes
+
+- The backend binds to `PORT`, which Render provides automatically.
+- The backend CORS configuration currently defaults to `*` for easy portfolio deployment.
+  Tighten this later to your exact frontend domain if you want stricter production security.
+- The frontend is a static site, so `VITE_API_BASE_URL` must be known at build time.
+- The Render Redis instance is wired into the backend automatically through `REDIS_HOST` and `REDIS_PORT` in the Blueprint.
 
 ## Testing
 
@@ -403,11 +451,15 @@ In restricted environments without Maven dependency access, tests may not execut
 - “I built a simulator, dashboard, and comparison page so the system is not just implemented, but observable and explainable.”
 - “The frontend architecture separates routing, page composition, reusable components, and API access for maintainability.”
 
+### Cloud / Deployment Story
+- “I containerized the backend, added a Render Blueprint, and wired the frontend, backend, and managed Redis into one deployable setup.”
+- “I adapted the backend to cloud runtime constraints by binding to Render’s `PORT` and adding CORS support for a separately hosted frontend.”
+
 ### Resume-Ready Summary
 - Built a distributed rate limiter using Spring Boot and Redis with support for fixed window, sliding window, and token bucket algorithms.
 - Designed Redis key strategy and atomic Lua-script execution to prevent race conditions under concurrent load.
 - Developed a React + TypeScript frontend with simulation, dashboard, and side-by-side algorithm comparison views.
-- Dockerized backend and Redis for reproducible local development.
+- Dockerized backend and Redis for reproducible local development and added Render deployment support with managed infrastructure configuration.
 
 ## What To Improve Next
 
@@ -416,7 +468,7 @@ Good next steps for taking this project further:
 - add per-tenant or per-endpoint policy management
 - add Micrometer / Prometheus metrics
 - add multi-instance backend deployment in Docker Compose
-- add auth and API key-based identity extraction
+- lock down CORS to the exact frontend domain in Render
 - add persistence for policies instead of simulation-only policy creation
 
 ## License

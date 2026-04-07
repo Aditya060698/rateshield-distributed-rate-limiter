@@ -1,5 +1,15 @@
 import type { ApiResponse } from '../../types/api';
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
+
+function buildUrl(path: string) {
+  if (!apiBaseUrl) {
+    return path;
+  }
+
+  return `${apiBaseUrl}${path}`;
+}
+
 async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const payload = (await response.json()) as ApiResponse<T>;
 
@@ -13,7 +23,7 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
 
 export const apiClient = {
   async post<TResponse, TBody>(url: string, body: TBody): Promise<ApiResponse<TResponse>> {
-    const response = await fetch(url, {
+    const response = await fetch(buildUrl(url), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
