@@ -25,7 +25,6 @@ services:
   - type: web
     name: rateshield-frontend
     runtime: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./frontend/dist
@@ -41,6 +40,4 @@ services:
     name: rateshield-redis
     plan: free
     maxmemoryPolicy: noeviction
-    ipAllowList:
-      - source: 0.0.0.0/32
-        description: deny direct public access
+    ipAllowList: []
