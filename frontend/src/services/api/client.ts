@@ -35,6 +35,14 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
 }
 
 export const apiClient = {
+  async get<TResponse>(url: string): Promise<ApiResponse<TResponse>> {
+    const response = await fetch(buildUrl(url), {
+      method: 'GET',
+    });
+
+    return parseResponse<TResponse>(response);
+  },
+
   async post<TResponse, TBody>(url: string, body: TBody): Promise<ApiResponse<TResponse>> {
     const response = await fetch(buildUrl(url), {
       method: 'POST',

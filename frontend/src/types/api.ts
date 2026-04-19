@@ -31,6 +31,11 @@ export interface SimulationResult {
   message: string;
 }
 
+export interface HealthResponse {
+  status: string;
+  message: string;
+}
+
 export interface DashboardEvent {
   id: string;
   createdAt: string;
